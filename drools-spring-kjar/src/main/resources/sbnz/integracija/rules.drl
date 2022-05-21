@@ -1,0 +1,11 @@
+package sbnz.integracija;
+
+import sbnz.integracija.example.models.*;
+
+rule "Classify User - fixed-term"
+    when
+        $k: Korisnik(ugovor.datumIsteka != null)
+    then
+        $k.setTipZaposlenja(TipZaposlenja.ODREDJENO);
+        update($k);
+end
