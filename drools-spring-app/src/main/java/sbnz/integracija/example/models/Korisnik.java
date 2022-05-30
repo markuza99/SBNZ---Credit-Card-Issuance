@@ -1,5 +1,6 @@
 package sbnz.integracija.example.models;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class Korisnik {
@@ -9,20 +10,27 @@ public class Korisnik {
     private String jmbg;
     private String ime;
     private String prezime;
-    private Date datumRodjenja;
+    private LocalDate datumRodjenja;
     private boolean klijentBanke;
     private double visinaZaduzenja;
     private double visinaPotrosackeKorpe;
     private int penali;
-    private TipZaposlenja tipZaposlenja;
     private Ugovor ugovor;
     private Kartica kartica;
+    private KarticaInfo karticaInfo;
+    
+    private StatusKartice statusKartice;
+    private DepozitStatus depozitZaTip;
+    private DepozitStatus depozitZaStarost;
+    private DepozitStatus depozitZaKlijenta;
+    private double potencijalniDepozit = 1;
 	
     public Korisnik() {
 		super();
 	}
+    
 
-	public Korisnik(String jmbg, String ime, String prezime, Date datumRodjenja, boolean klijentBanke,
+	public Korisnik(String jmbg, String ime, String prezime, LocalDate datumRodjenja, boolean klijentBanke,
 			double visinaZaduzenja, double visinaPotrosackeKorpe, int penali) {
 		super();
 		this.jmbg = jmbg;
@@ -37,9 +45,12 @@ public class Korisnik {
 	
 	
 
-	public Korisnik(String jmbg, String ime, String prezime, Date datumRodjenja, boolean klijentBanke,
-			double visinaZaduzenja, double visinaPotrosackeKorpe, int penali, TipZaposlenja tipZaposlenja,
-			Ugovor ugovor, Kartica kartica) {
+
+
+	public Korisnik(String jmbg, String ime, String prezime, LocalDate datumRodjenja, boolean klijentBanke,
+			double visinaZaduzenja, double visinaPotrosackeKorpe, int penali, Ugovor ugovor, Kartica kartica,
+			KarticaInfo karticaInfo, StatusKartice statusKartice, DepozitStatus depozitZaTip,
+			DepozitStatus depozitZaStarost, DepozitStatus depozitZaKlijenta, double potencijalniDepozit) {
 		super();
 		this.jmbg = jmbg;
 		this.ime = ime;
@@ -49,10 +60,16 @@ public class Korisnik {
 		this.visinaZaduzenja = visinaZaduzenja;
 		this.visinaPotrosackeKorpe = visinaPotrosackeKorpe;
 		this.penali = penali;
-		this.tipZaposlenja = tipZaposlenja;
 		this.ugovor = ugovor;
 		this.kartica = kartica;
+		this.karticaInfo = karticaInfo;
+		this.statusKartice = statusKartice;
+		this.depozitZaTip = depozitZaTip;
+		this.depozitZaStarost = depozitZaStarost;
+		this.depozitZaKlijenta = depozitZaKlijenta;
+		this.potencijalniDepozit = potencijalniDepozit;
 	}
+
 
 	public String getJmbg() {
 		return jmbg;
@@ -78,11 +95,11 @@ public class Korisnik {
 		this.prezime = prezime;
 	}
 
-	public Date getDatumRodjenja() {
+	public LocalDate getDatumRodjenja() {
 		return datumRodjenja;
 	}
 
-	public void setDatumRodjenja(Date datumRodjenja) {
+	public void setDatumRodjenja(LocalDate datumRodjenja) {
 		this.datumRodjenja = datumRodjenja;
 	}
 
@@ -118,14 +135,6 @@ public class Korisnik {
 		this.penali = penali;
 	}
 
-	public TipZaposlenja getTipZaposlenja() {
-		return tipZaposlenja;
-	}
-
-	public void setTipZaposlenja(TipZaposlenja tipZaposlenja) {
-		this.tipZaposlenja = tipZaposlenja;
-	}
-
 	public Ugovor getUgovor() {
 		return ugovor;
 	}
@@ -142,13 +151,73 @@ public class Korisnik {
 		this.kartica = kartica;
 	}
 
-	@Override
-	public String toString() {
-		return "Korisnik [jmbg=" + jmbg + ", ime=" + ime + ", prezime=" + prezime + ", datumRodjenja=" + datumRodjenja
-				+ ", klijentBanke=" + klijentBanke + ", visinaZaduzenja=" + visinaZaduzenja + ", visinaPotrosackeKorpe="
-				+ visinaPotrosackeKorpe + ", penali=" + penali + ", tipZaposlenja=" + tipZaposlenja + "]";
+	public KarticaInfo getKarticaInfo() {
+		return karticaInfo;
 	}
-    
+
+	public void setKarticaInfo(KarticaInfo karticaInfo) {
+		this.karticaInfo = karticaInfo;
+	}
+
+	public StatusKartice getStatusKartice() {
+		return statusKartice;
+	}
+
+	public void setStatusKartice(StatusKartice statusKartice) {
+		this.statusKartice = statusKartice;
+	}
+
+
+	
+
+	public DepozitStatus getDepozitZaTip() {
+		return depozitZaTip;
+	}
+
+
+	public void setDepozitZaTip(DepozitStatus depozitZaTip) {
+		this.depozitZaTip = depozitZaTip;
+	}
+
+
+	public DepozitStatus getDepozitZaStarost() {
+		return depozitZaStarost;
+	}
+
+
+	public void setDepozitZaStarost(DepozitStatus depozitZaStarost) {
+		this.depozitZaStarost = depozitZaStarost;
+	}
+
+
+	public DepozitStatus getDepozitZaKlijenta() {
+		return depozitZaKlijenta;
+	}
+
+
+	public void setDepozitZaKlijenta(DepozitStatus depozitZaKlijenta) {
+		this.depozitZaKlijenta = depozitZaKlijenta;
+	}
+
+
+	public double getPotencijalniDepozit() {
+		return potencijalniDepozit;
+	}
+
+
+	public void setPotencijalniDepozit(double potencijalniDepozit) {
+		this.potencijalniDepozit = potencijalniDepozit;
+	}
+
+	public void increasePotencijalniDepozit(double val) {
+		this.potencijalniDepozit += val;
+	}
+	
+	
+	
+	
+
+
 	
     
     

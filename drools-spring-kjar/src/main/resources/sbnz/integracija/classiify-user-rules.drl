@@ -1,11 +1,126 @@
 package sbnz.integracija;
 
-import sbnz.integracija.example.models.Korisnik;
+import sbnz.integracija.example.models.*;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+import java.time.LocalDate;
 
-rule "Classify User - not fixed-term"
+
+
+
+rule "Provera validnosti korisnika"
+	lock-on-active true
     when
-        $k: Korisnik(ugovor.datumIsteka == null)
+        $k: Korisnik($u: ugovor, $ki: karticaInfo, statusKartice.equals(StatusKartice.POCETAK) &&
+        datumRodjenja.isBefore(LocalDate.now().minusYears(18)) && 
+        datumRodjenja.isAfter(LocalDate.now().minusYears(75)) && 
+        visinaZaduzenja < 10000)
+        
+        KarticaInfo(limit <= 3000 && limit >= 100 && brRata <= 12) from $ki
+        
+        Ugovor($f: firma, plata > $k.visinaPotrosackeKorpe + $k.visinaZaduzenja) from $u
+        
+        Firma( ((datumOsnivanja.isBefore(LocalDate.now().minusYears(4)) && oblikOrganizovanja.equals(OblikOrganizovanja.PREDUZETNICI)) || 
+        (datumOsnivanja.isBefore(LocalDate.now().minusYears(2)) && !oblikOrganizovanja.equals(OblikOrganizovanja.PREDUZETNICI))) &&
+        visinaPrihoda > 15000 && brojZaposlenih > 5) from $f
+        
+        Number($value: intValue < 15) from accumulate(
+        	Blokada($t: this, datumDo.isAfter(LocalDate.now().minusYears(3))) from $f.blokade,
+        	init(long count = 0;),
+        	action(count += $t.getDifferenceDays();),
+        	result(count)
+        )
     then
-        $k.setTipZaposlenja(TipZaposlenja.NEODREDJENO);
-        update($k);
+        System.out.println("KORISNIK JE VALIDAN, IDEMO NA RACUNANJE DEPOZITA");
+        modify($k){setStatusKartice(StatusKartice.RACUNANJE_DEPOZITA);}   
 end
+
+rule "Dodavanje depozita: Korisnik nije klijent banke"
+	when
+		$k: Korisnik(statusKartice.equals(StatusKartice.RACUNANJE_DEPOZITA) && 
+		depozitZaKlijenta.equals(DepozitStatus.NA) && 
+		klijentBanke == false)
+	then
+	    System.out.println("KORISNIK NIJE KLIJENT BANKE, DODAJEMO 15% DEPOZIT");
+		modify($k){increasePotencijalniDepozit(0.15), setDepozitZaKlijenta(DepozitStatus.PRIHVACEN);}	
+end
+
+rule "Korisnik jeste klijent banke"
+	when
+		$k: Korisnik(statusKartice.equals(StatusKartice.RACUNANJE_DEPOZITA) && 
+		depozitZaKlijenta.equals(DepozitStatus.NA) && 
+		klijentBanke == true)
+	then
+		System.out.println("KORISNIK JE KLIJENT BANKE, NE DODAJEMO DEPOZIT");
+		modify($k){setDepozitZaKlijenta(DepozitStatus.ODBIJEN);}	
+end
+
+rule "Dodavanje depozita: Korisnik je zaposlen na odredjeno"
+	when
+		$k: Korisnik(statusKartice.equals(StatusKartice.RACUNANJE_DEPOZITA) && 
+		depozitZaTip.equals(DepozitStatus.NA) && 
+		ugovor.datumIsteka != null)
+	then
+		System.out.println("KORISNIK JE ZAPOSLEN NA ODREDJENO, DODAJEMO 10% DEPOZIT");
+		modify($k){increasePotencijalniDepozit(0.10), setDepozitZaTip(DepozitStatus.PRIHVACEN);}	
+end
+
+rule "Korisnik nije zaposlen na odredjeno"
+	when
+		$k: Korisnik(statusKartice.equals(StatusKartice.RACUNANJE_DEPOZITA) && 
+		depozitZaTip.equals(DepozitStatus.NA) && 
+		ugovor.datumIsteka == null)
+	then
+		System.out.println("KORISNIK NIJE ZAPOSLEN NA ODREDJENO, NE DODAJEMO DEPOZIT");
+		modify($k){setDepozitZaTip(DepozitStatus.ODBIJEN);}	
+end
+
+rule "Dodavanje depozita: Korisnik je stariji od 72 godine"
+	when
+		$k: Korisnik(statusKartice.equals(StatusKartice.RACUNANJE_DEPOZITA) && 
+		depozitZaStarost.equals(DepozitStatus.NA) && 
+		datumRodjenja.isBefore(LocalDate.now().minusYears(72)))
+	then
+		System.out.println("KORISNIK JE STARIJI OD 72 GODINE, DODAJEMO 5% DEPOZIT");
+		modify($k){increasePotencijalniDepozit(0.05), setDepozitZaStarost(DepozitStatus.PRIHVACEN);}	
+end
+
+rule "Korisnik je mladji od 72 godine"
+	when
+		$k: Korisnik(statusKartice.equals(StatusKartice.RACUNANJE_DEPOZITA) && 
+		depozitZaStarost.equals(DepozitStatus.NA) && 
+		datumRodjenja.isAfter(LocalDate.now().minusYears(72)))
+	then
+		System.out.println("KORISNIK NIJE STARIJI OD 72 GODINE, NE DODAJEMO DEPOZIT");
+		modify($k){setDepozitZaStarost(DepozitStatus.ODBIJEN);}	
+end
+
+rule "Provera validnosti kartice: depozit je prevelik"
+	when
+		$k: Korisnik($ki: karticaInfo,statusKartice.equals(StatusKartice.RACUNANJE_DEPOZITA) && 
+		!depozitZaStarost.equals(DepozitStatus.NA) && 
+		!depozitZaTip.equals(DepozitStatus.NA) && 
+		!depozitZaKlijenta.equals(DepozitStatus.NA))
+		KarticaInfo($k.potencijalniDepozit * limit > 3000) from $ki
+	then
+		System.out.println("DEPOZIT JE PREVELIK, ODBIJAMO PRAVLJENJE KARTICE");
+
+		modify($k){setStatusKartice(StatusKartice.KRAJ);}	
+end
+
+rule "Provera validnosti kartice: depozit je okej"
+	when
+		$k: Korisnik($ki: karticaInfo,statusKartice.equals(StatusKartice.RACUNANJE_DEPOZITA) && 
+		!depozitZaStarost.equals(DepozitStatus.NA) && 
+		!depozitZaTip.equals(DepozitStatus.NA) && 
+		!depozitZaKlijenta.equals(DepozitStatus.NA))
+		KarticaInfo($k.potencijalniDepozit * limit <= 3000) from $ki
+	then
+		System.out.println("DEPOZIT JE OKEJ, PRAVI SE KARTICA");
+
+		modify($k){setStatusKartice(StatusKartice.KRAJ),
+					setKartica(new Kartica($ki, $k.getPotencijalniDepozit()));}	
+end
+
+
+

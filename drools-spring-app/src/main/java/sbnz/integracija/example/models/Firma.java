@@ -1,6 +1,8 @@
 package sbnz.integracija.example.models;
 
+import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 public class Firma {
 
@@ -8,23 +10,23 @@ public class Firma {
 	private String naziv;
 	private OblikOrganizovanja oblikOrganizovanja;
 	private double visinaPrihoda;
-	private Date datumOsnivanja;
+	private LocalDate datumOsnivanja;
 	private int brojZaposlenih;
-	private Blokada blokada;
+	private List<Blokada> blokade;
 	
 	public Firma() {
 		super();
 	}
-
-	public Firma(String naziv, OblikOrganizovanja oblikOrganizovanja, double visinaPrihoda, Date datumOsnivanja,
-			int brojZaposlenih, Blokada blokada) {
+	
+	public Firma(String naziv, OblikOrganizovanja oblikOrganizovanja, double visinaPrihoda, LocalDate datumOsnivanja,
+			int brojZaposlenih, List<Blokada> blokade) {
 		super();
 		this.naziv = naziv;
 		this.oblikOrganizovanja = oblikOrganizovanja;
 		this.visinaPrihoda = visinaPrihoda;
 		this.datumOsnivanja = datumOsnivanja;
 		this.brojZaposlenih = brojZaposlenih;
-		this.blokada = blokada;
+		this.blokade = blokade;
 	}
 
 	public String getNaziv() {
@@ -51,11 +53,11 @@ public class Firma {
 		this.visinaPrihoda = visinaPrihoda;
 	}
 
-	public Date getDatumOsnivanja() {
+	public LocalDate getDatumOsnivanja() {
 		return datumOsnivanja;
 	}
 
-	public void setDatumOsnivanja(Date datumOsnivanja) {
+	public void setDatumOsnivanja(LocalDate datumOsnivanja) {
 		this.datumOsnivanja = datumOsnivanja;
 	}
 
@@ -67,13 +69,15 @@ public class Firma {
 		this.brojZaposlenih = brojZaposlenih;
 	}
 
-	public Blokada getBlokada() {
-		return blokada;
+	public List<Blokada> getBlokade() {
+		return blokade;
 	}
 
-	public void setBlokada(Blokada blokada) {
-		this.blokada = blokada;
+	public void setBlokade(List<Blokada> blokade) {
+		this.blokade = blokade;
 	}
+	
+	
 	
 	
 	
