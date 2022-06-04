@@ -29,7 +29,8 @@ public class Blokada {
 		if(datumOd.isAfter(startTime)) {
 			startTime = datumOd;
 		}
-	    return ChronoUnit.DAYS.between(startTime, datumDo);
+		return Duration.between(startTime.atTime(0, 0), datumDo.atTime(0, 0)).toDays();
+	    //return ChronoUnit.DAYS.between(startTime, datumDo);
 	}
 
 

@@ -15,18 +15,24 @@ public class BankService {
 	private static Logger log = LoggerFactory.getLogger(BankService.class);
 
 	private final KieContainer kieContainer;
+	private final KieSession kieSession; //DODAO
+
 
 	@Autowired
 	public BankService(KieContainer kieContainer) {
 		log.info("Initialising a new example session.");
 		this.kieContainer = kieContainer;
+		this.kieSession = kieContainer.newKieSession(); //DODAO
+
 	}
 
 	public Korisnik getClassifiedKorisnik(Korisnik k) {
-		KieSession kieSession = kieContainer.newKieSession();
+		//KieSession kieSession = kieContainer.newKieSession();
 		kieSession.insert(k);
 		kieSession.fireAllRules();
-		kieSession.dispose();
+		kieSession.insert(k.getKartica());
+		kieSession.fireAllRules();
+		//kieSession.dispose();
 		return k;
 	}
 }

@@ -5,6 +5,11 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.time.LocalDate;
 
+declare SuspiciousCustomerEvent
+    @role(event)
+    customerId: String
+    reason: String
+end
 
 
 
@@ -26,12 +31,14 @@ rule "Provera validnosti korisnika"
         
         Number($value: intValue < 15) from accumulate(
         	Blokada($t: this, datumDo.isAfter(LocalDate.now().minusYears(3))) from $f.blokade,
-        	init(long count = 0;),
-        	action(count += $t.getDifferenceDays();),
-        	result(count)
+        	sum($t.getDifferenceDays())
+        )
+        Number($value1: intValue < 6) from accumulate(
+        	Blokada($t: this, datumDo.isAfter(LocalDate.now().minusYears(3))) from $f.blokade,
+        	max($t.getDifferenceDays())
         )
     then
-        System.out.println("KORISNIK JE VALIDAN, IDEMO NA RACUNANJE DEPOZITA");
+        System.out.println("KORISNIK JE VALIDAN, IDEMO NA RACUNANJE DEPOZITA " + $value + " " + $value1);
         modify($k){setStatusKartice(StatusKartice.RACUNANJE_DEPOZITA);}   
 end
 
@@ -117,10 +124,33 @@ rule "Provera validnosti kartice: depozit je okej"
 		KarticaInfo($k.potencijalniDepozit * limit <= 3000) from $ki
 	then
 		System.out.println("DEPOZIT JE OKEJ, PRAVI SE KARTICA");
+		
+		insert(new SuspiciousCustomerEvent("SADAS", "BlaBLA"));
 
 		modify($k){setStatusKartice(StatusKartice.KRAJ),
 					setKartica(new Kartica($ki, $k.getPotencijalniDepozit()));}	
+					
+end
+
+rule "Ubacena kartica"
+	when
+        $n: Number(intValue >= 0) from accumulate(
+            $k: Kartica(),
+            count($k)
+        )
+    then
+        System.out.println("IMAMO VISE KARTICA " + $n);
+		
 end
 
 
+rule "More than 2 users"
+    when
+        $n: Number(intValue >= 0) from accumulate(
+            $k: SuspiciousCustomerEvent(),
+            count($k)
+        )
+    then
+        System.out.println("IMAMO VISE KORISNIKA " + $n);
+end
 

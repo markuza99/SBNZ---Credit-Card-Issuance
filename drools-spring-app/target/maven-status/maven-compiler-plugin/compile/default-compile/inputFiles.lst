@@ -1,6 +1,7 @@
 C:\Users\Petar\Desktop\cetvrta godina\SBNZ---Credit-Card-Issuance\drools-spring-app\src\main\java\sbnz\integracija\example\models\Transakcija.java
 C:\Users\Petar\Desktop\cetvrta godina\SBNZ---Credit-Card-Issuance\drools-spring-app\src\main\java\sbnz\integracija\example\models\StatusKartice.java
 C:\Users\Petar\Desktop\cetvrta godina\SBNZ---Credit-Card-Issuance\drools-spring-app\src\main\java\sbnz\integracija\example\models\DepozitStatus.java
+C:\Users\Petar\Desktop\cetvrta godina\SBNZ---Credit-Card-Issuance\drools-spring-app\src\main\java\sbnz\integracija\example\events\SuspiciousTransactionEvent.java
 C:\Users\Petar\Desktop\cetvrta godina\SBNZ---Credit-Card-Issuance\drools-spring-app\src\main\java\sbnz\integracija\example\controllers\BankController.java
 C:\Users\Petar\Desktop\cetvrta godina\SBNZ---Credit-Card-Issuance\drools-spring-app\src\main\java\sbnz\integracija\example\models\BrendKartice.java
 C:\Users\Petar\Desktop\cetvrta godina\SBNZ---Credit-Card-Issuance\drools-spring-app\src\main\java\sbnz\integracija\example\models\Kartica.java
