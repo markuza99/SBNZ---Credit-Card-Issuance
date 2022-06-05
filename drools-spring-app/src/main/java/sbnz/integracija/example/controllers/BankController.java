@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import sbnz.integracija.example.models.Korisnik;
+import sbnz.integracija.example.data.User;
+import sbnz.integracija.example.facts.CreditCardInfo;
 import sbnz.integracija.example.services.BankService;
 
 @RestController
@@ -22,16 +23,18 @@ public class BankController {
 		this.bankService = bankService;
 	}
 
-	@RequestMapping(value = "/user", method = RequestMethod.GET, produces = "application/json")
-	public Korisnik getQuestions(@RequestBody Korisnik k) {
+	
+	@RequestMapping(value = "/test", method = RequestMethod.GET, produces = "application/json")
+	public User test(@RequestBody CreditCardInfo k) {
 
 
 		log.debug("User request received for: " + k);
 		
-		Korisnik k1 = bankService.getClassifiedKorisnik(k);
+		User k1 = bankService.test(k);
 
 		return k1;
 	}
+	
 	
 	
 	
