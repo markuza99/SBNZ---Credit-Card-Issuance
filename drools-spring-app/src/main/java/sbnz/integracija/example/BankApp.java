@@ -37,6 +37,7 @@ public class BankApp {
 				.newKieContainer(ks.newReleaseId("sbnz.integracija", "drools-spring-kjar", "0.0.1-SNAPSHOT"));
 		KieScanner kScanner = ks.newKieScanner(kContainer);
 		kScanner.start(10_000);
+		
 		return kContainer;
 	}
 	/*

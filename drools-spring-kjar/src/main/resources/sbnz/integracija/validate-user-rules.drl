@@ -1,0 +1,110 @@
+package sbnz.integracija;
+import sbnz.integracija.example.data.*;
+import sbnz.integracija.example.facts.*;
+import sbnz.integracija.example.events.*;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.time.LocalDate;
+
+	rule "Validate user"
+    when
+    	$ci: CreditCardInfo(cardStatus.equals(CardStatus.START), limit <= 3000 && limit >= 100 && installments <= 12)
+    	$u: User($c: contract, birthday.isBefore(LocalDate.now().minusYears(18)) && 
+    	birthday.isAfter(LocalDate.now().minusYears(75)) && 
+        indebtednessAmount < 10000)
+        Contract($com: company, wage > (6543.0 + $u.indebtednessAmount)) from $c
+        Company( ((establishmentDate.isBefore(LocalDate.now().minusYears(4)) && companyType.equals(companyType.ENTERPRENEUR)) || 
+        (establishmentDate.isBefore(LocalDate.now().minusYears(2)) && !companyType.equals(companyType.ENTERPRENEUR))) &&
+        income > 15000) from $com
+        Number($value: intValue < 15) from accumulate(
+        	Blockade($t: this, endDate.isAfter(LocalDate.now().minusYears(3))) from $com.blockades,
+        	sum($t.getDifferenceDays())
+        )
+        Number($value1: intValue < 6) from accumulate(
+        	Blockade($t: this, endDate.isAfter(LocalDate.now().minusYears(3))) from $com.blockades,
+        	max($t.getDifferenceDays())
+        )
+        Number($value2: intValue > 3) from accumulate(
+        	Contract($t: this) from $com.contracts,
+        	count($t)
+        )
+    then
+        System.out.println("SUMA DANA: " + $value + " MAX DANA: " + $value1 + " BROJ ZAPOSLENIH: " + $value2);
+        modify($ci){setCardStatus(CardStatus.DEPOSIT_CALCULATION);}   
+	end
+	rule "Add deposit: User is not a bank client"
+		when
+			$ci: CreditCardInfo(cardStatus.equals(CardStatus.DEPOSIT_CALCULATION) && clientDeposit.equals(DepositStatus.NA))
+			$u: User(isBankClient() == false)
+		then
+		    System.out.println("KORISNIK NIJE KLIJENT BANKE, DODAJEMO 15% DEPOZIT");
+			modify($ci){increasePotentialDeposit(0.15), setClientDeposit(DepositStatus.ACCEPTED);}	
+	end
+	rule "User is a bank client"
+		when
+			$ci: CreditCardInfo(cardStatus.equals(CardStatus.DEPOSIT_CALCULATION) && clientDeposit.equals(DepositStatus.NA))
+			$u: User(isBankClient() == true)
+		then
+			System.out.println("KORISNIK JE KLIJENT BANKE, NE DODAJEMO DEPOZIT");
+			modify($ci){setClientDeposit(DepositStatus.DECLINED);}	
+	end
+	rule "Add deposit: User is in a fixed-term contract"
+		when
+			$ci: CreditCardInfo(cardStatus.equals(CardStatus.DEPOSIT_CALCULATION) && typeDeposit.equals(DepositStatus.NA))
+			$u: User(contract.endDate != null)
+		then
+			System.out.println("KORISNIK JE ZAPOSLEN NA ODREDJENO, DODAJEMO 10% DEPOZIT");
+			modify($ci){increasePotentialDeposit(0.10), setTypeDeposit(DepositStatus.ACCEPTED);}	
+	end
+	rule "User is not in a fixed-term contract"
+		when
+			$ci: CreditCardInfo(cardStatus.equals(CardStatus.DEPOSIT_CALCULATION) && typeDeposit.equals(DepositStatus.NA))
+			$u: User(contract.endDate == null)
+		then
+			System.out.println("KORISNIK NIJE ZAPOSLEN NA ODREDJENO, NE DODAJEMO DEPOZIT");
+			modify($ci){setClientDeposit(DepositStatus.DECLINED);}	
+	end
+	rule "Add deposit: User is older than 72 years"
+		when
+			$ci: CreditCardInfo(cardStatus.equals(CardStatus.DEPOSIT_CALCULATION) && ageDeposit.equals(DepositStatus.NA))
+			$u: User(birthday.isBefore(LocalDate.now().minusYears(72)))
+		then
+			System.out.println("KORISNIK JE STARIJI OD 72 GODINE, DODAJEMO 5% DEPOZIT");
+			modify($ci){increasePotentialDeposit(0.05), setAgeDeposit(DepositStatus.ACCEPTED);}	
+	end
+	rule "User is younger than 72 years"
+		when
+			$ci: CreditCardInfo(cardStatus.equals(CardStatus.DEPOSIT_CALCULATION) && ageDeposit.equals(DepositStatus.NA))
+			$u: User(birthday.isAfter(LocalDate.now().minusYears(72)))
+		then
+			System.out.println("KORISNIK JE MLADJI OD 72 GODINE, NE DODAJEMO DEPOZIT");
+			modify($ci){setAgeDeposit(DepositStatus.DECLINED);}	
+	end
+	rule "Deposit validation: Deposit is too large"
+		when
+			$ci: CreditCardInfo(cardStatus.equals(CardStatus.DEPOSIT_CALCULATION) && 
+			!ageDeposit.equals(DepositStatus.NA) &&
+			!typeDeposit.equals(DepositStatus.NA) &&
+			!clientDeposit.equals(DepositStatus.NA) &&
+			potentialDeposit * limit > 3000)
+		then
+			System.out.println("DEPOZIT JE PREVELIK, ODBIJAMO PRAVLJENJE KARTICE");
+			modify($ci){setCardStatus(CardStatus.END);}	
+	end
+	rule "Deposit validation: Deposit is okay"
+		when
+			$u: User()
+			$ci: CreditCardInfo(cardStatus.equals(CardStatus.DEPOSIT_CALCULATION) && 
+			!ageDeposit.equals(DepositStatus.NA) &&
+			!typeDeposit.equals(DepositStatus.NA) &&
+			!clientDeposit.equals(DepositStatus.NA) &&
+			potentialDeposit * limit <= 3000)
+		then
+			System.out.println("DEPOZIT JE TAMAN, PRIHVATAMO PRAVLJENJE KARTICE");
+			modify($u){setCreditCard(new CreditCard($ci));}
+			modify($ci){setCardStatus(CardStatus.END);}	
+	end
+
+

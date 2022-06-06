@@ -1,0 +1,92 @@
+package sbnz.integracija;
+
+import sbnz.integracija.example.data.*;
+import sbnz.integracija.example.facts.*;
+import sbnz.integracija.example.events.*;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.time.LocalDate;
+
+
+declare SuspiciousCustomerEvent
+    @role(event)
+    customerId: Long
+    reason: String
+    id: Date
+end
+
+declare AlarmTriggered
+    customerId: Long
+end
+
+
+rule "More than 2 transactions in 48 hours where amount is greater than limit"
+    when
+    	$c: CreditCard($l: limit)
+        $t1: TransactionEvent($pId: payerId, $rId: recipientId)
+        $t2: TransactionEvent(
+            this != $t1, 
+            payerId == $pId,
+            recipientId == $rId,
+            totalAmount >= $l, 
+            this meets[48h] $t1
+        )
+        not (SuspiciousCustomerEvent(customerId == $pId, reason == "Transactions over limit"))
+    then
+    	System.out.println("OPASNO: KLIJENT JE POSLAO PREKO LIMITA 2 PUTA ");
+        insert(new SuspiciousCustomerEvent($pId, "Transactions over limit", $t1.getExecutionTime()));
+end
+
+rule "More than 5 transactions in 6 hours from one client to same client"
+    when
+        $t1: TransactionEvent($pId: payerId, $rId: recipientId)
+        Number($val: intValue >= 5) from accumulate(
+            $t2: TransactionEvent(
+                this != $t1, 
+                payerId == $pId,
+                recipientId == $rId, 
+                this meets[6h] $t1
+            ),
+            count($t2)
+        )
+        not (SuspiciousCustomerEvent(customerId == $pId, reason == "Many transactions same receiver"))
+    then
+    	System.out.println("OPASNO: KLIJENT JE POSLAO ISTOM KLIJENU 5 PUTA ");
+        insert(new SuspiciousCustomerEvent($pId, "Many transactions same receiver", $t1.getExecutionTime()));
+end
+
+rule "More than 10 complex transactions in an hour from one client"
+    when
+        $t1: TransactionEvent($pId: payerId, $rId: recipientId)
+        Number($val: intValue >= 10) from accumulate(
+            $t2: TransactionEvent(
+                this != $t1, 
+                payerId == $pId,
+                this meets[1h] $t1
+            ),
+            count($t2)
+        )
+        not (SuspiciousCustomerEvent(customerId == $pId, reason == "Many transactions"))
+    then
+    	System.out.println("OPASNO: KLIJENT JE POSLAO VISE TRANSAKCIJA 10 PUTA");
+        insert(new SuspiciousCustomerEvent($pId, "Many transactions", $t1.getExecutionTime()));
+end
+
+
+
+rule "More than 2 suspicious cases in the day and we warn the owner"
+    when
+        SuspiciousCustomerEvent($cId: customerId)
+        not (AlarmTriggered(customerId == $cId))
+        Number($val: intValue >= 2) from accumulate(
+            $s: SuspiciousCustomerEvent(customerId == $cId),
+            count($s)
+        )
+    then
+        //warn the owner
+        System.out.println("WARNING: 2 Suspicious cases");
+        insert(new AlarmTriggered($cId));
+end
+
