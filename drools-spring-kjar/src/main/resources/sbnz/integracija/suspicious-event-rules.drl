@@ -19,8 +19,8 @@ end
 rule "More than 2 transactions in 48 hours where amount is greater than limit"
     when
 		$dat: Date()
-    	$c: CreditCard($l: limit)
         $t1: TransactionEvent($pId: payerId, $rId: recipientId)
+        $cc: CreditCard(id == $pId, blocked == false, $l: limit)
         $t2: TransactionEvent(
             this != $t1, 
             payerId == $pId,
@@ -38,6 +38,9 @@ rule "More than 5 transactions in 6 hours from one client to same client"
     when
     	$dat: Date()
         $t1: TransactionEvent($pId: payerId, $rId: recipientId)
+        $cc: CreditCard(id == $pId, blocked == false, $l: limit)
+
+        not (AlarmTriggered(payerId == $pId))
         Number($val: intValue >= 5) from accumulate(
             $t2: TransactionEvent(
                 this != $t1, 
@@ -57,6 +60,7 @@ rule "More than 10 complex transactions in an hour from one client"
     when
        	$dat: Date()
         $t1: TransactionEvent($pId: payerId, $rId: recipientId)
+        $cc: CreditCard(id == $pId, blocked == false, $l: limit)
         Number($val: intValue >= 10) from accumulate(
             $t2: TransactionEvent(
                 this != $t1, 
@@ -83,10 +87,10 @@ rule "More than 2 suspicious cases in the day and we warn the owner"
 		eval($listTOL.size() == 2) or
 		eval($listMTSR.size() == 3) or
 		eval($listMT.size() == 4) or
-		eval($listTOL.size() + $listMTSR.size() + $listMT.size() == 6)
+		eval($listTOL.size() + $listMTSR.size() + $listMT.size() >= 6)
     then
         //warn the owner
-        System.out.println("WARNING: 3 Suspicious cases");
+        System.out.println("UPOZORENJE: KARTICA JE UPOZORENA");
         insert(new AlarmTriggered($cId));
 end
 
@@ -102,10 +106,10 @@ rule "OPA DJURDJO"
 		eval($listTOL.size() == 4) or
 		eval($listMTSR.size() == 5) or
 		eval($listMT.size() == 6) or
-		eval($listTOL.size() + $listMTSR.size() + $listMT.size() == 10)
+		eval($listTOL.size() + $listMTSR.size() + $listMT.size() >= 10)
     then
         //warn the owner
         modify($cc) {setBlocked(true)}
-        System.out.println("WARNING: O5 SI ZAJEBO STVAR");
+        System.out.println("BLOKIRANJE: KARTICA JE BLOKIRANA");
       
 end

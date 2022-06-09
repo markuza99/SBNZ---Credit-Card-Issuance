@@ -6,9 +6,11 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.UUID;
 
@@ -25,11 +27,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import sbnz.integracija.example.data.CreditCard;
+import sbnz.integracija.example.data.Transaction;
 import sbnz.integracija.example.data.User;
 import sbnz.integracija.example.events.TransactionEvent;
 import sbnz.integracija.example.facts.CreditCardInfo;
 import sbnz.integracija.example.facts.TransactionInfo;
 import sbnz.integracija.example.repositories.CreditCardRepository;
+import sbnz.integracija.example.repositories.TransactionRepository;
 import sbnz.integracija.example.repositories.UserRepository;
 import sbnz.integracija.example.template.BankTemplate;
 
@@ -43,37 +47,64 @@ public class BankService {
 	private final KieSession kieSession; // DODAO
 	private final UserRepository userRepository;
 	private final CreditCardRepository creditCardRepository;
+	private final TransactionRepository transactionRepository;
 
 	@Autowired
 	public BankService(KieContainer kieContainer, KieSession kieSession, UserRepository userRepository,
-			CreditCardRepository creditCardRepository) {
+			CreditCardRepository creditCardRepository, TransactionRepository transactionRepository) {
 		log.info("Initialising a new example session.");
 		this.kieContainer = kieContainer;
 		this.kieSession = kieSession;
 		this.userRepository = userRepository;
 		this.creditCardRepository = creditCardRepository;
+		this.transactionRepository = transactionRepository;
 
 	}
 
 	public String chain(CreditCardInfo k) {
-		User u = userRepository.findById(k.getUserId()).get();
-		kieSession.insert(k);
-		kieSession.insert(u);
+		User u = getUser(k.getUserId());
+		FactHandle fh1 = kieSession.insert(k);
+		FactHandle fh2 = kieSession.insert(u);
 		kieSession.fireAllRules();
+		kieSession.retract(fh1);
+		kieSession.retract(fh2);
 		userRepository.save(u);
 
 		return "Card created!";
 	}
+	
+	public User getUser(Long id) {
+		
+		return userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User with id " + id + " not found"));
+	}
+	
+	public CreditCard getCreditCard(Long id) {
+			
+		return creditCardRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Credit card with id " + id + " not found"));
+	}
+	
+	
 
 	public TransactionEvent transaction(TransactionInfo ti) {
-		CreditCard c = creditCardRepository.findById(ti.getPayerId()).get();
+		CreditCard sender = getCreditCard(ti.getPayerId());
+		CreditCard recipient = getCreditCard(ti.getRecipientId());
+
 		kieSession.insert(new TransactionEvent(ti));
-		FactHandle fh1 = kieSession.insert(c);
+		FactHandle fh1 = kieSession.insert(sender);
 		FactHandle fh = kieSession.insert(new Date());
 		kieSession.fireAllRules();
 		kieSession.retract(fh);
 		kieSession.retract(fh1);
-		creditCardRepository.save(c);
+		
+		if(!sender.isBlocked()) {
+			Transaction transaction = new Transaction(LocalDate.now(), ti.getTotalAmount(), sender, recipient);
+			sender.addOutflows(transaction);
+			recipient.addInflow(transaction);
+		}
+		creditCardRepository.save(sender);
+
+		
+		
 		return null;
 	}
 

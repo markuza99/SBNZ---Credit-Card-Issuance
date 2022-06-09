@@ -4,11 +4,15 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -46,21 +50,19 @@ public class CreditCard {
 	private boolean isBlocked;
 	
 	
-	@OneToOne(mappedBy = "creditCard")
+	@ManyToOne
+    @JoinColumn(name="user_id")
     private User user;
 	
-	@OneToMany(mappedBy="recipient")
+	@OneToMany(mappedBy="recipient", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private Set<Transaction> inflows;
     
-    @OneToMany(mappedBy="payer")
+    @OneToMany(mappedBy="payer", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private Set<Transaction> outflows;
 
 	public CreditCard() {
 	}
-
 	
-	
-
 
 
 	public CreditCard(CreditCardInfo creditCardInfo) {
@@ -115,6 +117,15 @@ public class CreditCard {
 
 
 
+	public void addInflow(Transaction transaction) {
+		inflows.add(transaction);
+	}
+	
+	public void addOutflows(Transaction transaction) {
+		outflows.add(transaction);
+	}
+	
+	
 
 
 	public Long getId() {

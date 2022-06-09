@@ -1,11 +1,15 @@
 package sbnz.integracija.example.controllers;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -13,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import sbnz.integracija.example.data.User;
 import sbnz.integracija.example.events.TransactionEvent;
+import sbnz.integracija.example.exceptions.EntityNotFoundException;
 import sbnz.integracija.example.facts.CreditCardInfo;
 import sbnz.integracija.example.facts.TransactionInfo;
 import sbnz.integracija.example.services.BankService;
@@ -60,6 +65,11 @@ public class BankController {
 		TransactionEvent k1 = bankService.transaction(ti);
 		return k1;
 	}
+	
+	@ExceptionHandler(value = NoSuchElementException.class)
+	public ResponseEntity handleNoSuchElementException(NoSuchElementException noSuchElementException) {
+        return new ResponseEntity(noSuchElementException.getMessage(), HttpStatus.NOT_FOUND);
+    }
 	
 	
 	

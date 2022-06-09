@@ -38,6 +38,17 @@ public class Transaction {
 	}
 
 	
+	
+	public Transaction(LocalDate date, double amount, CreditCard payer, CreditCard recipient) {
+		super();
+		this.date = date;
+		this.amount = amount;
+		this.payer = payer;
+		this.recipient = recipient;
+	}
+
+
+
 	public Transaction(Long id, LocalDate date, double amount, CreditCard payer, CreditCard recipient) {
 		this.id = id;
 		this.date = date;

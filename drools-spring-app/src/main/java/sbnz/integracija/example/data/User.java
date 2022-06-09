@@ -2,14 +2,17 @@ package sbnz.integracija.example.data;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -48,30 +51,22 @@ public class User {
 	@Column(name = "bank_client")
 	private boolean isBankClient;
 	
-	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "creditcard_id", referencedColumnName = "id")
-	private CreditCard creditCard;
-	
 	@OneToOne
 	@JoinColumn(name = "contract_id", referencedColumnName = "id")
 	private Contract contract;
 
-	
+	@OneToMany(mappedBy="user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	private Set<CreditCard> creditCards;
 	
 
+	
+	
 	public User() {
 	}
 	
-	
-
-	
-
-
-
-
-
 	public User(Long id, String ucid, String firstName, String lastName, LocalDate birthday, double indebtednessAmount,
-			double basketOfGoods, int penalties, boolean isBankClient, CreditCard creditCard, Contract contract) {
+			double basketOfGoods, int penalties, boolean isBankClient, Contract contract, Set<CreditCard> creditCards) {
+		super();
 		this.id = id;
 		this.ucid = ucid;
 		this.firstName = firstName;
@@ -81,25 +76,32 @@ public class User {
 		this.basketOfGoods = basketOfGoods;
 		this.penalties = penalties;
 		this.isBankClient = isBankClient;
-		this.creditCard = creditCard;
 		this.contract = contract;
+		this.creditCards = creditCards;
 	}
 
 
 
 
 
-	public CreditCard getCreditCard() {
-		return creditCard;
+	public void addCreditCard(CreditCard creditCard) {
+		creditCards.add(creditCard);
+	}
+
+
+	public Set<CreditCard> getCreditCards() {
+		return creditCards;
 	}
 
 
 
 
 
-	public void setCreditCard(CreditCard creditCard) {
-		this.creditCard = creditCard;
+
+	public void setCreditCards(Set<CreditCard> creditCards) {
+		this.creditCards = creditCards;
 	}
+
 
 
 
@@ -185,6 +187,7 @@ public class User {
 		this.contract = contract;
 	}
 	
+	 
 	
 	
 	

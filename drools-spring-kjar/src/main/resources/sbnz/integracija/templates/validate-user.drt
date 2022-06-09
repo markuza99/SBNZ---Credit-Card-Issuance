@@ -124,7 +124,7 @@ template "popularity"
 		then
 			System.out.println("DEPOZIT JE TAMAN, PRIHVATAMO PRAVLJENJE KARTICE");
 	
-			modify($u){setCreditCard(new CreditCard($ci));}
+			modify($u){addCreditCard(new CreditCard($ci));}
 			modify($ci){setCardStatus(CardStatus.END);}	
 	end
 
