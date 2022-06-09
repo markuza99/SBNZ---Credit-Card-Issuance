@@ -12,6 +12,7 @@ sbnz\integracija\example\controllers\BankController.class
 sbnz\integracija\example\data\Blockade.class
 sbnz\integracija\example\data\User.class
 sbnz\integracija\example\BankApp.class
+sbnz\integracija\example\events\SuspiciousTransactionEvent.class
 sbnz\integracija\example\data\CardBrand.class
 sbnz\integracija\example\data\CompanyType.class
 sbnz\integracija\example\repositories\CreditCardRepository.class

@@ -10,20 +10,15 @@ import java.util.concurrent.TimeUnit;
 import java.time.LocalDate;
 
 
-declare SuspiciousCustomerEvent
-    @role(event)
-    customerId: Long
-    reason: String
-    id: Date
-end
 
 declare AlarmTriggered
-    customerId: Long
+    payerId: Long
 end
 
 
 rule "More than 2 transactions in 48 hours where amount is greater than limit"
     when
+		$dat: Date()
     	$c: CreditCard($l: limit)
         $t1: TransactionEvent($pId: payerId, $rId: recipientId)
         $t2: TransactionEvent(
@@ -33,14 +28,15 @@ rule "More than 2 transactions in 48 hours where amount is greater than limit"
             totalAmount >= $l, 
             this meets[48h] $t1
         )
-        not (SuspiciousCustomerEvent(customerId == $pId, reason == "Transactions over limit"))
+        not (SuspiciousTransactionEvent(payerId == $pId, reason == "Transactions over limit", id == $dat))
     then
     	System.out.println("OPASNO: KLIJENT JE POSLAO PREKO LIMITA 2 PUTA ");
-        insert(new SuspiciousCustomerEvent($pId, "Transactions over limit", $t1.getExecutionTime()));
+        insert(new SuspiciousTransactionEvent($pId, "Transactions over limit", $dat));
 end
 
 rule "More than 5 transactions in 6 hours from one client to same client"
     when
+    	$dat: Date()
         $t1: TransactionEvent($pId: payerId, $rId: recipientId)
         Number($val: intValue >= 5) from accumulate(
             $t2: TransactionEvent(
@@ -51,14 +47,15 @@ rule "More than 5 transactions in 6 hours from one client to same client"
             ),
             count($t2)
         )
-        not (SuspiciousCustomerEvent(customerId == $pId, reason == "Many transactions same receiver"))
+        not (SuspiciousTransactionEvent(payerId == $pId, reason == "Many transactions same receiver", id == $dat))
     then
     	System.out.println("OPASNO: KLIJENT JE POSLAO ISTOM KLIJENU 5 PUTA ");
-        insert(new SuspiciousCustomerEvent($pId, "Many transactions same receiver", $t1.getExecutionTime()));
+        insert(new SuspiciousTransactionEvent($pId, "Many transactions same receiver",$dat));
 end
 
 rule "More than 10 complex transactions in an hour from one client"
     when
+       	$dat: Date()
         $t1: TransactionEvent($pId: payerId, $rId: recipientId)
         Number($val: intValue >= 10) from accumulate(
             $t2: TransactionEvent(
@@ -68,25 +65,47 @@ rule "More than 10 complex transactions in an hour from one client"
             ),
             count($t2)
         )
-        not (SuspiciousCustomerEvent(customerId == $pId, reason == "Many transactions"))
+        not (SuspiciousTransactionEvent(payerId == $pId, reason == "Many transactions", id == $dat))
     then
     	System.out.println("OPASNO: KLIJENT JE POSLAO VISE TRANSAKCIJA 10 PUTA");
-        insert(new SuspiciousCustomerEvent($pId, "Many transactions", $t1.getExecutionTime()));
+        insert(new SuspiciousTransactionEvent($pId, "Many transactions", $dat));
 end
 
 
 
 rule "More than 2 suspicious cases in the day and we warn the owner"
     when
-        SuspiciousCustomerEvent($cId: customerId)
-        not (AlarmTriggered(customerId == $cId))
-        Number($val: intValue >= 2) from accumulate(
-            $s: SuspiciousCustomerEvent(customerId == $cId),
-            count($s)
-        )
+        SuspiciousTransactionEvent($cId: payerId)
+        not (AlarmTriggered(payerId == $cId))
+        $listTOL: List() from collect(SuspiciousTransactionEvent(payerId == $cId, reason == "Transactions over limit"))
+		$listMT:  List() from collect(SuspiciousTransactionEvent(payerId == $cId, reason == "Many transactions"))
+		$listMTSR:  List() from collect(SuspiciousTransactionEvent(payerId == $cId, reason == "Many transactions same receiver"))
+		eval($listTOL.size() == 2) or
+		eval($listMTSR.size() == 3) or
+		eval($listMT.size() == 4) or
+		eval($listTOL.size() + $listMTSR.size() + $listMT.size() == 6)
     then
         //warn the owner
-        System.out.println("WARNING: 2 Suspicious cases");
+        System.out.println("WARNING: 3 Suspicious cases");
         insert(new AlarmTriggered($cId));
 end
 
+
+rule "OPA DJURDJO"
+    when
+        SuspiciousTransactionEvent($cId: payerId)
+        AlarmTriggered(payerId == $cId)
+        $cc: CreditCard(id == $cId, blocked == false)
+        $listTOL: List() from collect(SuspiciousTransactionEvent(payerId == $cId, reason == "Transactions over limit"))
+		$listMT:  List() from collect(SuspiciousTransactionEvent(payerId == $cId, reason == "Many transactions"))
+		$listMTSR:  List() from collect(SuspiciousTransactionEvent(payerId == $cId, reason == "Many transactions same receiver"))
+		eval($listTOL.size() == 4) or
+		eval($listMTSR.size() == 5) or
+		eval($listMT.size() == 6) or
+		eval($listTOL.size() + $listMTSR.size() + $listMT.size() == 10)
+    then
+        //warn the owner
+        modify($cc) {setBlocked(true)}
+        System.out.println("WARNING: O5 SI ZAJEBO STVAR");
+      
+end

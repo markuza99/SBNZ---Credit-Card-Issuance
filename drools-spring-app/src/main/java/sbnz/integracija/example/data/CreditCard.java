@@ -42,6 +42,9 @@ public class CreditCard {
 	@Column(name = "installments")
 	private int installments;
 	
+	@Column(name = "is_blocked")
+	private boolean isBlocked;
+	
 	
 	@OneToOne(mappedBy = "creditCard")
     private User user;
@@ -88,6 +91,29 @@ public class CreditCard {
 		this.inflows = inflows;
 		this.outflows = outflows;
 	}
+
+	
+
+
+	public CreditCard(Long id, String cardNumber, CardBrand cardBrand, LocalDate expirationDate, double limit,
+			double deposit, int installments, boolean isBlocked, User user, Set<Transaction> inflows,
+			Set<Transaction> outflows) {
+		super();
+		this.id = id;
+		this.cardNumber = cardNumber;
+		this.cardBrand = cardBrand;
+		this.expirationDate = expirationDate;
+		this.limit = limit;
+		this.deposit = deposit;
+		this.installments = installments;
+		this.isBlocked = isBlocked;
+		this.user = user;
+		this.inflows = inflows;
+		this.outflows = outflows;
+	}
+
+
+
 
 
 
@@ -172,6 +198,25 @@ public class CreditCard {
 	public int getInstallments() {
 		return installments;
 	}
+
+	
+
+
+	public boolean isBlocked() {
+		return isBlocked;
+	}
+
+
+
+
+
+
+	public void setBlocked(boolean isBlocked) {
+		this.isBlocked = isBlocked;
+	}
+
+
+
 
 
 
