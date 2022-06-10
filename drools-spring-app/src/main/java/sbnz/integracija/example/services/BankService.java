@@ -9,9 +9,11 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.maven.shared.invoker.MavenInvocationException;
@@ -24,6 +26,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import sbnz.integracija.example.data.CreditCard;
@@ -37,9 +43,9 @@ import sbnz.integracija.example.repositories.TransactionRepository;
 import sbnz.integracija.example.repositories.UserRepository;
 import sbnz.integracija.example.template.BankTemplate;
 
-@Service
+@Service(value = "bankService")
 @EnableScheduling
-public class BankService {
+public class BankService implements UserDetailsService {
 
 	private static Logger log = LoggerFactory.getLogger(BankService.class);
 
@@ -139,5 +145,24 @@ public class BankService {
 
 		return "Success";
 	}
+
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		// TODO Auto-generated method stub
+		User user = userRepository.findByUsername(username);
+		System.out.println(user.getRoles().toString() + " DASDADSD" + user.getUsername());
+		if(user != null) {
+			System.out.println("DASDSADA");
+		}
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), getAuthority(user));
+	}
+	
+	private Set<SimpleGrantedAuthority> getAuthority(User user) {
+        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+        user.getRoles().forEach(role -> {
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
+        });
+        return authorities;
+    }
 
 }
