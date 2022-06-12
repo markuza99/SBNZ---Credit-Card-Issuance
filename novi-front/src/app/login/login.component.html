@@ -1,0 +1,15 @@
+<p-toast position="top-center" key="tc"></p-toast>
+<p-card [style]="{'margin':'auto','width':'30%','text-align':'center','margin-top':'5%'}">
+    <h1>Login form</h1>
+    <i class="pi pi-user" style="font-size: 10rem;"></i>
+    <br>
+    <input type="text" [(ngModel)]="creds.username" pInputText style="width: 100%; margin-bottom:10px" placeholder="Username"> 
+
+    <br> 
+    <input type="password" pPassword [(ngModel)]="creds.password"   [feedback]="false" style="width: 100%; margin-bottom:10px" placeholder="Password"/>
+
+
+    <p-button label="Sign up" (onClick)="login()" [style]="{'width': '100%'}"></p-button>
+
+</p-card>
+

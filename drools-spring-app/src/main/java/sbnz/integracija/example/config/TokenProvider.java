@@ -12,7 +12,10 @@ import org.springframework.stereotype.Component;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
+import java.util.Date;import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -60,6 +63,7 @@ public class TokenProvider implements Serializable {
 
         return Jwts.builder()
                 .setSubject(authentication.getName())
+                //.setId("DSADDAS")
                 .claim(AUTHORITIES_KEY, authorities)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + TOKEN_VALIDITY*1000))

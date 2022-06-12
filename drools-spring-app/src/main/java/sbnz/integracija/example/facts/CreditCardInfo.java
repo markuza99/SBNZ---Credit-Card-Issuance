@@ -4,7 +4,7 @@ import sbnz.integracija.example.data.CardBrand;
 
 public class CreditCardInfo {
 
-	private Long userId;
+	private String userId;
 	private double limit;
 	private int installments;
 	private CardBrand brand;
@@ -13,7 +13,7 @@ public class CreditCardInfo {
     private DepositStatus ageDeposit;
     private DepositStatus clientDeposit;
     private double potentialDeposit = 1;
-	public CreditCardInfo(Long userId, double limit, int installments, CardBrand brand, CardStatus cardStatus,
+	public CreditCardInfo(String userId, double limit, int installments, CardBrand brand, CardStatus cardStatus,
 			DepositStatus typeDeposit, DepositStatus ageDeposit, DepositStatus clientDeposit, double potentialDeposit) {
 		super();
 		this.userId = userId;
@@ -29,10 +29,10 @@ public class CreditCardInfo {
 	public CreditCardInfo() {
 		super();
 	}
-	public Long getUserId() {
+	public String getUserId() {
 		return userId;
 	}
-	public void setUserId(Long userId) {
+	public void setUserId(String userId) {
 		this.userId = userId;
 	}
 	public double getLimit() {

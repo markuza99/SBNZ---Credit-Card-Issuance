@@ -1,0 +1,11 @@
+<div class="center">
+    <h3>Card brand:</h3>
+    <p-dropdown [options]="cards" [(ngModel)]="selectedCard"  placeholder="Select a card brand" optionLabel="name" [showClear]="true"></p-dropdown>
+    <h3>Card limit:</h3>
+    <p-inputNumber [(ngModel)]="limit" mode="currency" inputId="currency-germany" placeholder="Select limit for card" currency="EUR" locale="de-DE" [inputStyle]="{'width': '100%', 'margin-bottom':'10px','margin-top': '1%'}"></p-inputNumber>
+    <h3>Number of installments:</h3>
+    <p-inputNumber [(ngModel)]="installments" inputId="integeronly" placeholder="Select installments for card" [inputStyle]="{'width': '100%', 'margin-bottom':'10px','margin-top': '1%'}"></p-inputNumber>
+    <br>
+    <p-button (onClick)="postCard()" label="Request credit card"  [style]="{'width': '20%','margin-top':'2%'}"></p-button>
+
+</div>

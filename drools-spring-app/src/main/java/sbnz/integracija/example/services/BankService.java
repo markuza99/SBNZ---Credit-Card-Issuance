@@ -38,6 +38,7 @@ import sbnz.integracija.example.data.User;
 import sbnz.integracija.example.events.TransactionEvent;
 import sbnz.integracija.example.facts.CreditCardInfo;
 import sbnz.integracija.example.facts.TransactionInfo;
+import sbnz.integracija.example.repositories.BankTemplateRepository;
 import sbnz.integracija.example.repositories.CreditCardRepository;
 import sbnz.integracija.example.repositories.TransactionRepository;
 import sbnz.integracija.example.repositories.UserRepository;
@@ -54,16 +55,19 @@ public class BankService implements UserDetailsService {
 	private final UserRepository userRepository;
 	private final CreditCardRepository creditCardRepository;
 	private final TransactionRepository transactionRepository;
+	private final BankTemplateRepository bankTemplateRepository;
+
 
 	@Autowired
 	public BankService(KieContainer kieContainer, KieSession kieSession, UserRepository userRepository,
-			CreditCardRepository creditCardRepository, TransactionRepository transactionRepository) {
+			CreditCardRepository creditCardRepository, TransactionRepository transactionRepository,BankTemplateRepository bankTemplateRepository) {
 		log.info("Initialising a new example session.");
 		this.kieContainer = kieContainer;
 		this.kieSession = kieSession;
 		this.userRepository = userRepository;
 		this.creditCardRepository = creditCardRepository;
 		this.transactionRepository = transactionRepository;
+		this.bankTemplateRepository = bankTemplateRepository;
 
 	}
 
@@ -79,9 +83,9 @@ public class BankService implements UserDetailsService {
 		return "Card created!";
 	}
 	
-	public User getUser(Long id) {
+	public User getUser(String id) {
 		
-		return userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User with id " + id + " not found"));
+		return userRepository.findByUsername(id).orElseThrow(() -> new NoSuchElementException("User with username " + id + " not found"));
 	}
 	
 	public CreditCard getCreditCard(Long id) {
@@ -142,18 +146,22 @@ public class BankService implements UserDetailsService {
 
 		String drl = compileTemplate(dto, "validate-user.drt");
 		this.writeCompiledTemplate(drl, "validate-user-rules.drl");
-
+		sbnz.integracija.example.data.BankTemplate bt = bankTemplateRepository.findById((long) 1).get();
+		bt.setBasketOfGoods(dto.getBasketOfGoods());
+		bankTemplateRepository.save(bt);
 		return "Success";
+	}
+	
+	public String getBasketOfGoods() {
+		
+		return Double.toString(bankTemplateRepository.findById((long) 1).get().getBasketOfGoods());
 	}
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		// TODO Auto-generated method stub
-		User user = userRepository.findByUsername(username);
-		System.out.println(user.getRoles().toString() + " DASDADSD" + user.getUsername());
-		if(user != null) {
-			System.out.println("DASDSADA");
-		}
+		User user = getUser(username);
+
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), getAuthority(user));
 	}
 	

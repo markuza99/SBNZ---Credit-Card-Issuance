@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,6 +37,7 @@ import sbnz.integracija.example.template.BankTemplate;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
+@RequestMapping(value = "/api/bank")
 public class BankController {
 	private static Logger log = LoggerFactory.getLogger(BankController.class);
 
@@ -66,7 +68,8 @@ public class BankController {
         return ResponseEntity.ok(new AuthToken(token));
     }
 	
-	@RequestMapping(value = "/chain", method = RequestMethod.GET, produces = "application/json")
+	@PreAuthorize("hasAnyAuthority('ROLE_BANKER','ROLE_CLIENT')")
+	@RequestMapping(value = "/chain", method = RequestMethod.POST, produces = "application/json")
 	public String chain(@RequestBody CreditCardInfo k) {
 
 
@@ -77,7 +80,8 @@ public class BankController {
 		return res;
 	}
 	
-	@RequestMapping(value = "/template", method = RequestMethod.GET, produces = "application/json")
+    @PreAuthorize("hasAuthority('ROLE_BANKER')")
+	@RequestMapping(value = "/template", method = RequestMethod.POST, produces = "application/json")
 	public String template(@RequestBody BankTemplate t) throws IOException, MavenInvocationException {
 
 
@@ -86,6 +90,13 @@ public class BankController {
 		String k1 = bankService.doTemplate(t);
 
 		return k1;
+	}
+    
+    @PreAuthorize("hasAuthority('ROLE_BANKER')")
+	@RequestMapping(value = "/basket", method = RequestMethod.GET, produces = "application/json")
+	public String basket() throws IOException, MavenInvocationException {
+
+		return bankService.getBasketOfGoods();
 	}
 	
 	@RequestMapping(value = "/bank", method = RequestMethod.GET, produces = "application/json")

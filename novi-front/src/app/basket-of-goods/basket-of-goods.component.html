@@ -1,0 +1,12 @@
+<p-toast position="top-center" key="tc"></p-toast>
+<p-card [style]="{'margin':'auto','width':'30%','text-align':'center'}">
+    <h1>Basket of goods</h1>
+    <i class="pi pi-shopping-cart" style="font-size: 10rem;"></i>
+    <br>
+    <div style="width: 100%;"></div>
+    <p-inputNumber [(ngModel)]="basket.basketOfGoods" mode="currency" inputId="currency-germany" currency="EUR" locale="de-DE" [inputStyle]="{'width': '100%', 'margin-bottom':'10px','margin-top': '5%'}">
+    </p-inputNumber> 
+    <br> 
+    <p-button (onClick)="setBasketOfGoods()" label="Set basket of goods value"  [style]="{'width': '50%'}"></p-button>
+    <h4>The current basket of goods is: {{val}} €</h4>
+</p-card>

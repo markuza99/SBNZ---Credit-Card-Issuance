@@ -11,6 +11,7 @@ INSERT INTO CONTRACTS (end_date, start_date, wage, company_id) VALUES ('2022-03-
 INSERT INTO CONTRACTS (end_date, start_date, wage, company_id) VALUES ('2022-12-04', '2020-12-03', 5432.00, 1);
 INSERT INTO CONTRACTS (end_date, start_date, wage, company_id) VALUES ('2022-05-05', '2019-04-03', 5765.00, 1);
 INSERT INTO CONTRACTS (end_date, start_date, wage, company_id) VALUES ('2022-12-06', '2018-08-03', 7653.00, 1);
+INSERT INTO TEMPLATE (basket_of_goods) VALUES (500);
 
 
 INSERT INTO USERS (basket_of_goods,birthday,first_name,indebtedness_amount,bank_client,last_name,penalties,ucid, contract_id, username, password) VALUES (500,'1999-10-29','Petar',100,true,'Markovic', 0, '2910999730020', 1 , 'markuza99', '$2a$12$ZnZBw8Op7MxwDmQXYTaFk..y0Pu7xGTLybrAfi9BZmDmjuItU8kDC');
@@ -23,7 +24,7 @@ INSERT INTO ROLES (name, description) VALUES ('ROLE_CLIENT', 'client');
 
 INSERT INTO USER_ROLES (user_id, role_id) VALUES (1,2);
 INSERT INTO USER_ROLES (user_id, role_id) VALUES (1,1);
-INSERT INTO USER_ROLES (user_id, role_id) VALUES (2,1);
+INSERT INTO USER_ROLES (user_id, role_id) VALUES (2,2);
 
 
 
