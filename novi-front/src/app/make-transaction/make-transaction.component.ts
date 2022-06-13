@@ -29,7 +29,11 @@ export class MakeTransactionComponent implements OnInit {
 
   makeTransaction(): void {
     if(!this.selectedUserCard || !this.selectedCard || !this.amount || this.amount <= 0.0) {
-      this.messageService.add({key: 'tc', severity:'error', summary: 'Empyty fields', detail: 'Please dont leave empty fields!'});
+      this.messageService.add({key: 'tc', severity:'error', summary: 'Empty fields', detail: 'Please dont leave empty fields!'});
+      return;
+    }
+    if(this.selectedCard.cardNumber == this.selectedUserCard.cardNumber) {
+      this.messageService.add({key: 'tc', severity:'error', summary: 'Same card', detail: 'Please dont use same card for payer and receiver!'});
       return;
     }
     var transaction: Transaction = {

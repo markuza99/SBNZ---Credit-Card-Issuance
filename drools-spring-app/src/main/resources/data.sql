@@ -31,5 +31,5 @@ INSERT INTO USER_ROLES (user_id, role_id) VALUES (4,2);
 
 INSERT INTO BLOCKADES (end_date, start_date, company_id) VALUES ('2020-03-03', '2020-03-01', 1);
 INSERT INTO BLOCKADES (end_date, start_date, company_id) VALUES ('2020-05-27', '2020-05-23', 1);
-INSERT INTO BLOCKADES (end_date, start_date, company_id) VALUES ('2020-06-16', '2020-06-11', 1);
+INSERT INTO BLOCKADES (end_date, start_date, company_id) VALUES ('2020-06-15', '2020-06-11', 1);
 
