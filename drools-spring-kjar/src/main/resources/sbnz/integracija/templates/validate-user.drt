@@ -79,7 +79,7 @@ template "popularity"
 			$u: User(contract.endDate == null)
 		then
 			System.out.println("KORISNIK NIJE ZAPOSLEN NA ODREDJENO, NE DODAJEMO DEPOZIT");
-			modify($ci){setClientDeposit(DepositStatus.DECLINED);}	
+			modify($ci){setTypeDeposit(DepositStatus.DECLINED);}	
 	end
 	
 	rule "Add deposit: User is older than 72 years"

@@ -55,9 +55,7 @@ public class User {
 	
 	@Column(name = "indebtedness_amount")
 	private double indebtednessAmount;
-	
-	@Column(name = "basket_of_goods")
-	private double basketOfGoods;
+
 	
 	@Column(name = "penalties")
 	private int penalties;
@@ -92,7 +90,7 @@ public class User {
 
 
 	public User(Long id, String ucid, String firstName, String lastName, String username, String password, String email,
-			LocalDate birthday, double indebtednessAmount, double basketOfGoods, int penalties, boolean isBankClient,
+			LocalDate birthday, double indebtednessAmount,  int penalties, boolean isBankClient,
 			Contract contract, Set<CreditCard> creditCards, Set<Role> roles) {
 		super();
 		this.id = id;
@@ -104,7 +102,6 @@ public class User {
 		this.email = email;
 		this.birthday = birthday;
 		this.indebtednessAmount = indebtednessAmount;
-		this.basketOfGoods = basketOfGoods;
 		this.penalties = penalties;
 		this.isBankClient = isBankClient;
 		this.contract = contract;
@@ -262,13 +259,6 @@ public class User {
 		this.indebtednessAmount = indebtednessAmount;
 	}
 
-	public double getBasketOfGoods() {
-		return basketOfGoods;
-	}
-
-	public void setBasketOfGoods(double basketOfGoods) {
-		this.basketOfGoods = basketOfGoods;
-	}
 
 	public int getPenalties() {
 		return penalties;

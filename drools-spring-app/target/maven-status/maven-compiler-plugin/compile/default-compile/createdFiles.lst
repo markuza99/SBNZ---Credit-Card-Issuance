@@ -7,6 +7,7 @@ sbnz\integracija\example\dtos\CreditCardDTO.class
 sbnz\integracija\example\facts\DepositStatus.class
 sbnz\integracija\example\repositories\UserRepository.class
 sbnz\integracija\example\config\WebSecurityConfig.class
+sbnz\integracija\example\dtos\TransactionDTO.class
 sbnz\integracija\example\data\Contract.class
 sbnz\integracija\example\controllers\BankController.class
 sbnz\integracija\example\config\CORSFilter.class
