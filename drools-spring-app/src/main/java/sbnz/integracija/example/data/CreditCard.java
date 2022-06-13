@@ -145,10 +145,12 @@ public class CreditCard {
 
 
 	public void addInflow(Transaction transaction) {
+		transaction.setRecipient(this);
 		inflows.add(transaction);
 	}
 	
 	public void addOutflows(Transaction transaction) {
+		transaction.setPayer(this);
 		outflows.add(transaction);
 	}
 	

@@ -23,6 +23,7 @@ import {DropdownModule} from 'primeng/dropdown';
 import { MakeTransactionComponent } from './make-transaction/make-transaction.component';
 import {TableModule} from 'primeng/table';
 import { CardsComponent } from './cards/cards.component';
+import { TransactionHistoryComponent } from './transaction-history/transaction-history.component';
 
 
 
@@ -35,7 +36,8 @@ import { CardsComponent } from './cards/cards.component';
     BasketOfGoodsComponent,
     CardRequestComponent,
     MakeTransactionComponent,
-    CardsComponent
+    CardsComponent,
+    TransactionHistoryComponent
   ],
   imports: [
     BrowserModule,

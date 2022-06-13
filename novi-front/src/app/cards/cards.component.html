@@ -1,1 +1,40 @@
-<p>cards works!</p>
+<p-table [value]="cards">
+    <ng-template pTemplate="header">
+        <tr>
+            <th>Card number</th>
+            <th>Card brand</th>
+            <th>Limit</th>
+            <th>Deposit</th>
+            <th>Expiration date</th>
+            <th>Transaction history</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-card>
+        <tr  *ngIf="!card.blocked && !card.warned">
+            <td>{{card.cardNumber}}</td>
+            <td>{{card.cardBrand}}</td>
+            <td>{{card.limit}}</td>
+            <td>{{card.deposit}}</td>
+            <td>{{card.expirationDate}}</td>
+            <td><p-button label="View transactions" (onClick) = "proba(card.id)"  ></p-button></td>
+
+        </tr>
+        <tr  *ngIf="card.blocked" style="background-color: rgb(233, 146, 146);">
+            <td>{{card.cardNumber}}</td>
+            <td>{{card.cardBrand}}</td>
+            <td>{{card.limit}}</td>
+            <td>{{card.deposit}}</td>
+            <td>{{card.expirationDate}}</td>
+            <td><p-button label="View transactions" (onClick) = "proba(card.id)"  ></p-button></td>
+
+        </tr>
+        <tr  *ngIf="card.warned && !card.blocked" style="background-color: rgb(237, 237, 160);">
+            <td>{{card.cardNumber}}</td>
+            <td>{{card.cardBrand}}</td>
+            <td>{{card.limit}}</td>
+            <td>{{card.deposit}}</td>
+            <td>{{card.expirationDate}}</td>
+            <td><p-button label="View transactions" (onClick) = "proba(card.id)"  ></p-button></td>
+        </tr>
+    </ng-template>
+</p-table>

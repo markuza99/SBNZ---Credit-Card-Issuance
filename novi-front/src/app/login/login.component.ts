@@ -36,7 +36,7 @@ export class LoginComponent implements OnInit {
       console.log(res)
       var token = jwt_decode(res["token"])
       localStorage.setItem("username", token["sub"])
-      localStorage.setItem("role", token["roles"])
+      localStorage.setItem("roles", token["roles"])
       localStorage.setItem("token", res["token"])
       this.loginService.emitLogin();
       this.router.navigateByUrl('/basket');

@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -37,6 +38,7 @@ import sbnz.integracija.example.data.CreditCard;
 import sbnz.integracija.example.data.Transaction;
 import sbnz.integracija.example.data.User;
 import sbnz.integracija.example.dtos.CreditCardDTO;
+import sbnz.integracija.example.dtos.TransactionDTO;
 import sbnz.integracija.example.events.TransactionEvent;
 import sbnz.integracija.example.facts.CreditCardInfo;
 import sbnz.integracija.example.facts.TransactionInfo;
@@ -76,6 +78,18 @@ public class BankService implements UserDetailsService {
 	public List<CreditCardDTO> getCreditCards() {
 		return creditCardRepository.findAll().stream()
 		        .map(cc -> new CreditCardDTO(cc))
+		        .collect(Collectors.toList());
+	}
+	
+	public List<CreditCardDTO> getCreditCardsForUser(String username) {
+		return creditCardRepository.findByUserUsername(username).stream()
+		        .map(cc -> new CreditCardDTO(cc))
+		        .collect(Collectors.toList());
+	}
+	
+	public List<TransactionDTO> getTransactionsForCard(Long id) {
+		return transactionRepository.findByRecipientIdOrPayerIdOrderByDateDesc(id, id).stream()
+		        .map(t -> new TransactionDTO(t))
 		        .collect(Collectors.toList());
 	}
 
@@ -125,7 +139,7 @@ public class BankService implements UserDetailsService {
 		kieSession.retract(fh1);
 		
 		if(!sender.isBlocked()) {
-			Transaction transaction = new Transaction(LocalDate.now(), ti.getTotalAmount(), sender, recipient);
+			Transaction transaction = new Transaction(LocalDateTime.now(), ti.getTotalAmount(), sender, recipient);
 			sender.addOutflows(transaction);
 			recipient.addInflow(transaction);
 			if(sender.isWarned()) {
@@ -136,10 +150,10 @@ public class BankService implements UserDetailsService {
 		} else {
 			result = "Transaction Blocked";
 		}
+		
+		
 		creditCardRepository.save(sender);
 		return result;
-		
-		
 	}
 
 	private String compileTemplate(BankTemplate bt, String rule) {

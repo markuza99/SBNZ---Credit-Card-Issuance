@@ -21,7 +21,7 @@ export class NavbarComponent implements OnInit {
   }
 
   setNavbarItems = () => {
-    this.role = localStorage.getItem('role');
+    this.role = localStorage.getItem('roles');
     if (this.role === '' || !this.role) {
       this.items = [
         {
@@ -33,16 +33,28 @@ export class NavbarComponent implements OnInit {
     } else {
       this.items = [
         {
+          label: 'Set basket of goods',
+          icon: 'pi pi-fw pi-shopping-bag',
+          routerLink: '/basket',
+          visible: this.role.split(",").includes("ROLE_BANKER"),
+        },
+        {
           label: 'Credit card request',
           icon: 'pi pi-fw pi-credit-card',
           routerLink: '/request',
           visible: this.role.split(",").includes("ROLE_CLIENT") || this.role.split(",").includes("ROLE_CLIENT"),
         },
         {
-          label: 'Set basket of goods',
-          icon: 'pi pi-fw pi-shopping-bag',
-          routerLink: '/basket',
-          visible: this.role.split(",").includes("ROLE_BANKER"),
+          label: 'Make transaction',
+          icon: 'pi pi-fw pi-paypal',
+          routerLink: '/make-transaction',
+          visible: this.role.split(",").includes("ROLE_CLIENT") || this.role.split(",").includes("ROLE_CLIENT"),
+        },
+        {
+          label: 'Credit cards',
+          icon: 'pi pi-fw pi-money-bill',
+          routerLink: '/cards',
+          visible: this.role.split(",").includes("ROLE_CLIENT") || this.role.split(",").includes("ROLE_CLIENT"),
         },
         {
           label: 'Logout',

@@ -33,6 +33,7 @@ import sbnz.integracija.example.data.AuthToken;
 import sbnz.integracija.example.data.LoginUser;
 import sbnz.integracija.example.data.User;
 import sbnz.integracija.example.dtos.CreditCardDTO;
+import sbnz.integracija.example.dtos.TransactionDTO;
 import sbnz.integracija.example.events.TransactionEvent;
 import sbnz.integracija.example.exceptions.EntityNotFoundException;
 import sbnz.integracija.example.facts.CreditCardInfo;
@@ -109,6 +110,21 @@ public class BankController {
 	public List<CreditCardDTO> getCards() throws IOException, MavenInvocationException {
 
 		return bankService.getCreditCards();
+	}
+	
+	
+	@PreAuthorize("hasAnyAuthority('ROLE_BANKER','ROLE_CLIENT')")
+	@RequestMapping(value = "/cards/{username}", method = RequestMethod.GET, produces = "application/json")
+	public List<CreditCardDTO> getCardsForUser(@PathVariable("username") String username) throws IOException, MavenInvocationException {
+
+		return bankService.getCreditCardsForUser(username);
+	}
+	
+	@PreAuthorize("hasAnyAuthority('ROLE_BANKER','ROLE_CLIENT')")
+	@RequestMapping(value = "/transactions/{id}", method = RequestMethod.GET, produces = "application/json")
+	public List<TransactionDTO> getTransactionsForUser(@PathVariable("id") Long id) throws IOException, MavenInvocationException {
+
+		return bankService.getTransactionsForCard(id);
 	}
 	
 	@RequestMapping(value = "/bank", method = RequestMethod.GET, produces = "application/json")

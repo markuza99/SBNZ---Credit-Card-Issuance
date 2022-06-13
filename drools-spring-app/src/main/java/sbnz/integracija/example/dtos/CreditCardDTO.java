@@ -11,6 +11,7 @@ public class CreditCardDTO {
 	private String cardBrand;
 	private String cardOwner;
 	private boolean isBlocked;
+	private boolean isWarned;
 	private double limit;
 	private double deposit;
 	private LocalDate expirationDate;
@@ -25,22 +26,32 @@ public class CreditCardDTO {
 		this.limit = cc.getLimit();
 		this.deposit = cc.getDeposit();
 		this.expirationDate = cc.getExpirationDate();
+		this.isWarned = cc.isWarned();
 	}
 	
 	
 	
+	
+
+
+
 	public CreditCardDTO(Long id, String cardNumber, String cardBrand, String cardOwner, boolean isBlocked,
-			double limit, double deposit, LocalDate expirationDate) {
+			boolean isWarned, double limit, double deposit, LocalDate expirationDate) {
 		super();
 		this.id = id;
 		this.cardNumber = cardNumber;
 		this.cardBrand = cardBrand;
 		this.cardOwner = cardOwner;
 		this.isBlocked = isBlocked;
+		this.isWarned = isWarned;
 		this.limit = limit;
 		this.deposit = deposit;
 		this.expirationDate = expirationDate;
 	}
+
+
+
+
 
 
 
@@ -126,6 +137,26 @@ public class CreditCardDTO {
 
 	public void setExpirationDate(LocalDate expirationDate) {
 		this.expirationDate = expirationDate;
+	}
+
+
+
+
+
+
+
+	public boolean isWarned() {
+		return isWarned;
+	}
+
+
+
+
+
+
+
+	public void setWarned(boolean isWarned) {
+		this.isWarned = isWarned;
 	}
 	
 	
