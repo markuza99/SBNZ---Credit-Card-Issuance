@@ -191,6 +191,7 @@ public class User {
 
 
 	public void addCreditCard(CreditCard creditCard) {
+		creditCard.setUser(this);
 		creditCards.add(creditCard);
 	}
 

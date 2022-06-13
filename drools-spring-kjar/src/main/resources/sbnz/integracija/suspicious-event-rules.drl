@@ -39,9 +39,7 @@ rule "More than 5 transactions in 6 hours from one client to same client"
     	$dat: Date()
         $t1: TransactionEvent($pId: payerId, $rId: recipientId)
         $cc: CreditCard(id == $pId, blocked == false, $l: limit)
-
-        not (AlarmTriggered(payerId == $pId))
-        Number($val: intValue >= 5) from accumulate(
+        Number($val: intValue >= 4) from accumulate(
             $t2: TransactionEvent(
                 this != $t1, 
                 payerId == $pId,
@@ -61,7 +59,7 @@ rule "More than 10 complex transactions in an hour from one client"
        	$dat: Date()
         $t1: TransactionEvent($pId: payerId, $rId: recipientId)
         $cc: CreditCard(id == $pId, blocked == false, $l: limit)
-        Number($val: intValue >= 10) from accumulate(
+        Number($val: intValue >= 9) from accumulate(
             $t2: TransactionEvent(
                 this != $t1, 
                 payerId == $pId,
@@ -80,6 +78,7 @@ end
 rule "More than 2 suspicious cases in the day and we warn the owner"
     when
         SuspiciousTransactionEvent($cId: payerId)
+        $cc: CreditCard(id == $cId, blocked == false)
         not (AlarmTriggered(payerId == $cId))
         $listTOL: List() from collect(SuspiciousTransactionEvent(payerId == $cId, reason == "Transactions over limit"))
 		$listMT:  List() from collect(SuspiciousTransactionEvent(payerId == $cId, reason == "Many transactions"))
@@ -91,6 +90,7 @@ rule "More than 2 suspicious cases in the day and we warn the owner"
     then
         //warn the owner
         System.out.println("UPOZORENJE: KARTICA JE UPOZORENA");
+        modify($cc) {setWarned(true)}
         insert(new AlarmTriggered($cId));
 end
 
@@ -104,9 +104,9 @@ rule "OPA DJURDJO"
 		$listMT:  List() from collect(SuspiciousTransactionEvent(payerId == $cId, reason == "Many transactions"))
 		$listMTSR:  List() from collect(SuspiciousTransactionEvent(payerId == $cId, reason == "Many transactions same receiver"))
 		eval($listTOL.size() == 4) or
-		eval($listMTSR.size() == 5) or
-		eval($listMT.size() == 6) or
-		eval($listTOL.size() + $listMTSR.size() + $listMT.size() >= 10)
+		eval($listMTSR.size() == 6) or
+		eval($listMT.size() == 8) or
+		eval($listTOL.size() + $listMTSR.size() + $listMT.size() >= 12)
     then
         //warn the owner
         modify($cc) {setBlocked(true)}

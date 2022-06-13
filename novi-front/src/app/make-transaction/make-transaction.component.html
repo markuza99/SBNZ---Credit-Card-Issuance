@@ -1,0 +1,11 @@
+<p-toast position="top-center" key="tc"></p-toast>
+<div class="center">
+    <p-dropdown [options]="userCards" [(ngModel)]="selectedUserCard"  placeholder="Select payer card" optionLabel="cardNumber" [showClear]="true" [style]="{'width': '20%', 'margin-bottom':'1%'}"></p-dropdown>
+    <br>
+    <p-dropdown [options]="cards" [(ngModel)]="selectedCard"  placeholder="Select recipient card" optionLabel="cardNumber" [showClear]="true" [style]="{'width': '20%', 'margin-bottom':'1%'}"></p-dropdown>
+    <br>
+    <p-inputNumber  mode="currency" inputId="currency-germany" [(ngModel)] ="amount" placeholder="Select amount for transaction" currency="EUR" locale="de-DE" [inputStyle]="{'width': '100%', 'margin-bottom':'10px','margin-top': '1%'}" [style]="{'width': '100%','margin-top':'1%'}"></p-inputNumber>
+    <br>
+    <p-button label="Make transaction" (onClick) = "makeTransaction()"  [style]="{'width': '30%','margin-top':'1%'}"></p-button>
+
+</div>

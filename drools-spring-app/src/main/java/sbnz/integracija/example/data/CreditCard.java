@@ -7,6 +7,8 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -31,6 +33,7 @@ public class CreditCard {
 	@Column(name = "card_number")
 	private String cardNumber;
 	
+    @Enumerated(EnumType.STRING)
 	@Column(name = "card_brand")
 	private CardBrand cardBrand;
 	
@@ -49,6 +52,8 @@ public class CreditCard {
 	@Column(name = "is_blocked")
 	private boolean isBlocked;
 	
+	@Column(name = "is_warned")
+	private boolean isWarned;
 	
 	@ManyToOne
     @JoinColumn(name="user_id")
@@ -114,6 +119,28 @@ public class CreditCard {
 		this.outflows = outflows;
 	}
 
+	
+	
+
+
+
+	public CreditCard(Long id, String cardNumber, CardBrand cardBrand, LocalDate expirationDate, double limit,
+			double deposit, int installments, boolean isBlocked, boolean isWarned, User user, Set<Transaction> inflows,
+			Set<Transaction> outflows) {
+		super();
+		this.id = id;
+		this.cardNumber = cardNumber;
+		this.cardBrand = cardBrand;
+		this.expirationDate = expirationDate;
+		this.limit = limit;
+		this.deposit = deposit;
+		this.installments = installments;
+		this.isBlocked = isBlocked;
+		this.isWarned = isWarned;
+		this.user = user;
+		this.inflows = inflows;
+		this.outflows = outflows;
+	}
 
 
 
@@ -227,7 +254,20 @@ public class CreditCard {
 	}
 
 
+	
 
+
+
+
+	public boolean isWarned() {
+		return isWarned;
+	}
+
+
+
+	public void setWarned(boolean isWarned) {
+		this.isWarned = isWarned;
+	}
 
 
 

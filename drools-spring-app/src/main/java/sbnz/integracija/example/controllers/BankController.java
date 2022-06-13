@@ -1,7 +1,10 @@
 package sbnz.integracija.example.controllers;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.NoSuchElementException;
+
+import javax.websocket.server.PathParam;
 
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.slf4j.Logger;
@@ -19,6 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,6 +32,7 @@ import sbnz.integracija.example.config.TokenProvider;
 import sbnz.integracija.example.data.AuthToken;
 import sbnz.integracija.example.data.LoginUser;
 import sbnz.integracija.example.data.User;
+import sbnz.integracija.example.dtos.CreditCardDTO;
 import sbnz.integracija.example.events.TransactionEvent;
 import sbnz.integracija.example.exceptions.EntityNotFoundException;
 import sbnz.integracija.example.facts.CreditCardInfo;
@@ -98,6 +103,13 @@ public class BankController {
 
 		return bankService.getBasketOfGoods();
 	}
+    
+	@PreAuthorize("hasAnyAuthority('ROLE_BANKER','ROLE_CLIENT')")
+	@RequestMapping(value = "/cards", method = RequestMethod.GET, produces = "application/json")
+	public List<CreditCardDTO> getCards() throws IOException, MavenInvocationException {
+
+		return bankService.getCreditCards();
+	}
 	
 	@RequestMapping(value = "/bank", method = RequestMethod.GET, produces = "application/json")
     @PreAuthorize("hasAuthority('ROLE_BANKER')")
@@ -105,13 +117,13 @@ public class BankController {
         return "SAMO BANKAR VIDI";
     }
 	
-	
-	@RequestMapping(value = "/trans", method = RequestMethod.GET, produces = "application/json")
-	public TransactionEvent transaction(@RequestBody TransactionInfo ti) {
+	@PreAuthorize("hasAnyAuthority('ROLE_BANKER','ROLE_CLIENT')")
+	@RequestMapping(value = "/trans", method = RequestMethod.POST, produces = "application/json")
+	public String transaction(@RequestBody TransactionInfo ti) {
 
 		log.debug("Transaction request received for: " + ti);
 		
-		TransactionEvent k1 = bankService.transaction(ti);
+		String k1 = bankService.transaction(ti);
 		return k1;
 	}
 	

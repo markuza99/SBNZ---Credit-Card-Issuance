@@ -20,6 +20,9 @@ import {PasswordModule} from 'primeng/password';
 import {InputNumberModule} from 'primeng/inputnumber';
 import { CardRequestComponent } from './card-request/card-request.component';
 import {DropdownModule} from 'primeng/dropdown';
+import { MakeTransactionComponent } from './make-transaction/make-transaction.component';
+import {TableModule} from 'primeng/table';
+import { CardsComponent } from './cards/cards.component';
 
 
 
@@ -30,7 +33,9 @@ import {DropdownModule} from 'primeng/dropdown';
     LoginComponent,
     LogoutComponent,
     BasketOfGoodsComponent,
-    CardRequestComponent
+    CardRequestComponent,
+    MakeTransactionComponent,
+    CardsComponent
   ],
   imports: [
     BrowserModule,
@@ -46,7 +51,8 @@ import {DropdownModule} from 'primeng/dropdown';
     ToastModule,
     BrowserAnimationsModule,
     InputNumberModule,
-    DropdownModule
+    DropdownModule,
+    TableModule
   ],
   providers: [],
   bootstrap: [AppComponent]

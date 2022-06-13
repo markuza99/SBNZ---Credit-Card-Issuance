@@ -14,7 +14,7 @@ import java.time.LocalDate;
     	$u: User($c: contract, birthday.isBefore(LocalDate.now().minusYears(18)) && 
     	birthday.isAfter(LocalDate.now().minusYears(75)) && 
         indebtednessAmount < 10000)
-        Contract($com: company, wage > (5.32 + $u.indebtednessAmount)) from $c
+        Contract($com: company, wage > (321.0 + $u.indebtednessAmount)) from $c
         Company( ((establishmentDate.isBefore(LocalDate.now().minusYears(4)) && companyType.equals(companyType.ENTERPRENEUR)) || 
         (establishmentDate.isBefore(LocalDate.now().minusYears(2)) && !companyType.equals(companyType.ENTERPRENEUR))) &&
         income > 15000) from $com

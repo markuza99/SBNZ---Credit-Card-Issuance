@@ -15,6 +15,7 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.drools.template.ObjectDataCompiler;
@@ -35,6 +36,7 @@ import org.springframework.stereotype.Service;
 import sbnz.integracija.example.data.CreditCard;
 import sbnz.integracija.example.data.Transaction;
 import sbnz.integracija.example.data.User;
+import sbnz.integracija.example.dtos.CreditCardDTO;
 import sbnz.integracija.example.events.TransactionEvent;
 import sbnz.integracija.example.facts.CreditCardInfo;
 import sbnz.integracija.example.facts.TransactionInfo;
@@ -70,18 +72,34 @@ public class BankService implements UserDetailsService {
 		this.bankTemplateRepository = bankTemplateRepository;
 
 	}
+	
+	public List<CreditCardDTO> getCreditCards() {
+		return creditCardRepository.findAll().stream()
+		        .map(cc -> new CreditCardDTO(cc))
+		        .collect(Collectors.toList());
+	}
 
 	public String chain(CreditCardInfo k) {
 		User u = getUser(k.getUserId());
+		int cardNum = u.getCreditCards().size();
 		FactHandle fh1 = kieSession.insert(k);
 		FactHandle fh2 = kieSession.insert(u);
-		kieSession.fireAllRules();
+		int rules = kieSession.fireAllRules();
 		kieSession.retract(fh1);
 		kieSession.retract(fh2);
+		if(rules == 0) {
+			return "Request denied: Request, client, contract or company information are invalid! ";
+		}
+		if(u.getCreditCards().size() == cardNum) {
+			return "Request denied: Potential deposit is too big!";
+		}
+
 		userRepository.save(u);
 
-		return "Card created!";
+		return "Success: Card created successfully!";
 	}
+	
+
 	
 	public User getUser(String id) {
 		
@@ -95,10 +113,10 @@ public class BankService implements UserDetailsService {
 	
 	
 
-	public TransactionEvent transaction(TransactionInfo ti) {
+	public String transaction(TransactionInfo ti) {
 		CreditCard sender = getCreditCard(ti.getPayerId());
 		CreditCard recipient = getCreditCard(ti.getRecipientId());
-
+		String result = "";
 		kieSession.insert(new TransactionEvent(ti));
 		FactHandle fh1 = kieSession.insert(sender);
 		FactHandle fh = kieSession.insert(new Date());
@@ -110,12 +128,18 @@ public class BankService implements UserDetailsService {
 			Transaction transaction = new Transaction(LocalDate.now(), ti.getTotalAmount(), sender, recipient);
 			sender.addOutflows(transaction);
 			recipient.addInflow(transaction);
+			if(sender.isWarned()) {
+				result = "Transaction Warning";
+			} else {
+				result = "Transaction Successful";
+			}
+		} else {
+			result = "Transaction Blocked";
 		}
 		creditCardRepository.save(sender);
-
+		return result;
 		
 		
-		return null;
 	}
 
 	private String compileTemplate(BankTemplate bt, String rule) {

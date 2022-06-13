@@ -3,6 +3,7 @@ sbnz\integracija\example\data\AuthToken.class
 sbnz\integracija\example\services\BankService.class
 sbnz\integracija\example\config\UnauthorizedEntryPoint.class
 sbnz\integracija\example\data\CreditCard.class
+sbnz\integracija\example\dtos\CreditCardDTO.class
 sbnz\integracija\example\facts\DepositStatus.class
 sbnz\integracija\example\repositories\UserRepository.class
 sbnz\integracija\example\config\WebSecurityConfig.class
@@ -24,7 +25,9 @@ sbnz\integracija\example\config\TokenProvider.class
 sbnz\integracija\example\config\JwtAuthenticationFilter.class
 sbnz\integracija\example\data\Company.class
 sbnz\integracija\example\data\Blockade.class
+sbnz\integracija\example\repositories\BankTemplateRepository.class
 sbnz\integracija\example\data\User.class
+sbnz\integracija\example\data\BankTemplate.class
 sbnz\integracija\example\data\CardBrand.class
 sbnz\integracija\example\exceptions\EntityNotFoundException.class
 sbnz\integracija\example\data\Transaction.class

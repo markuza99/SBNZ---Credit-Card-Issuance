@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 export class CardRequestService {
 
   constructor(private http: HttpClient) { }
+  
   createCard(val): Observable<String> {
     return this.http.post('/api/bank/chain', val,{headers:{
       Authorization: 'Bearer ' + localStorage.getItem('token'),
